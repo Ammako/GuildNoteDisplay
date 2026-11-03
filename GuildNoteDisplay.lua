@@ -369,7 +369,19 @@ function app.Settings()
 		local variable = setting:GetVariable()
 
 		if strsub(variable, 1, 17) == "GuildNoteDisplay_" then
-			variable = strsub(variable, 17);
+			variable = strsub(variable, 18);
+		end
+
+		if variable == "note_in_tooltip" then
+			if value then
+				colour_guild_note_checkbox:Disable()
+				note_in_author_field_checkbox:Disable()
+				display_party_raid_chat_checkbox:Disable()
+			else
+				colour_guild_note_checkbox:Enable()
+				note_in_author_field_checkbox:Enable()
+				display_party_raid_chat_checkbox:Enable()
+			end
 		end
 	end
 
@@ -392,17 +404,18 @@ function app.Settings()
 		local defaultValue = true
 
 		local setting = RegisterSetting(variable, defaultValue, name)
-		CreateCheckbox(category, setting, tooltip)
+		local checkbox = CreateCheckbox(category, setting, tooltip)
+		checkbox.data.name = "colour_guild_note_checkbox"
 	end
 
-    do -- color picker
-        local function OnButtonClick()
-            app.ShowColorPicker(GuildNoteDisplayDB.note_colour_table)
-        end
+	do -- color picker
+		local function OnButtonClick()
+			app.ShowColorPicker(GuildNoteDisplayDB.note_colour_table)
+		end
 
-        local initializer = CreateSettingsButtonInitializer(L["Guild note colour"], L["Click to pick a colour"], OnButtonClick, nil, true);
-        layout:AddInitializer(initializer)
-    end
+		local initializer = CreateSettingsButtonInitializer(L["Guild note colour"], L["Click to pick a colour"], OnButtonClick, nil, true);
+		layout:AddInitializer(initializer)
+	end
 
 	do -- checkbox
 		local variable = "note_in_author_field"
@@ -411,7 +424,8 @@ function app.Settings()
 		local defaultValue = false
 
 		local setting = RegisterSetting(variable, defaultValue, name)
-		CreateCheckbox(category, setting, tooltip)
+		local checkbox = CreateCheckbox(category, setting, tooltip)
+		checkbox.data.name = "note_in_author_field_checkbox"
 	end
 
 	do --checkbox
@@ -421,7 +435,8 @@ function app.Settings()
 		local defaultValue = false
 
 		local setting = RegisterSetting(variable, defaultValue, name)
-		CreateCheckbox(category, setting, tooltip)
+		local checkbox = CreateCheckbox(category, setting, tooltip)
+		checkbox.data.name = "note_in_tooltip_checkbox"
 	end
 
 	do -- checkbox
@@ -431,7 +446,8 @@ function app.Settings()
 		local defaultValue = false
 
 		local setting = RegisterSetting(variable, defaultValue, name)
-		CreateCheckbox(category, setting, tooltip)
+		local checkbox = CreateCheckbox(category, setting, tooltip)
+		checkbox.data.name = "normalise_special_characters_checkbox"
 	end
 
 	do -- checkbox
@@ -441,7 +457,8 @@ function app.Settings()
 		local defaultValue = false
 
 		local setting = RegisterSetting(variable, defaultValue, name)
-		CreateCheckbox(category, setting, tooltip)
+		local checkbox = CreateCheckbox(category, setting, tooltip)
+		checkbox.data.name = "use_officer_note_checkbox"
 	end
 
 	do -- checkbox
@@ -451,7 +468,8 @@ function app.Settings()
 		local defaultValue = true
 
 		local setting = RegisterSetting(variable, defaultValue, name)
-		CreateCheckbox(category, setting, tooltip)
+		local checkbox = CreateCheckbox(category, setting, tooltip)
+		checkbox.data.name = "display_party_raid_chat_checkbox"
 	end
 
 	do -- checkbox
@@ -461,7 +479,8 @@ function app.Settings()
 		local defaultValue = false
 
 		local setting = RegisterSetting(variable, defaultValue, name)
-		CreateCheckbox(category, setting, tooltip)
+		local checkbox = CreateCheckbox(category, setting, tooltip)
+		checkbox.data.name = "hide_checkbox"
 		setting:SetValueChangedCallback(function()
 			if GuildNoteDisplayDB["hide"] == false then
 				app.MinimapIcon:Show(appName)
@@ -470,4 +489,19 @@ function app.Settings()
 			end
 		end)
 	end
+
+	colour_guild_note_checkbox = nil
+	note_in_author_field_checkbox = nil
+	display_party_raid_chat_checkbox = nil
+
+	hooksecurefunc(SettingsCheckboxControlMixin, "Init", function(self)
+		if self.data.name == "colour_guild_note_checkbox" then
+			colour_guild_note_checkbox = self
+		elseif self.data.name == "note_in_author_field_checkbox" then
+			note_in_author_field_checkbox = self
+		elseif self.data.name == "display_party_raid_chat_checkbox" then
+			display_party_raid_chat_checkbox = self
+		end
+	end)
 end
+
